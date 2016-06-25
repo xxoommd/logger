@@ -30,13 +30,18 @@ func init() {
 	opLogger.EnableFuncCallDepth(true)
 	opLogger.SetLogFuncCallDepth(3)
 
-	SetLogger(logs.LevelDebug)
+	SetLoggerLevel(logs.LevelDebug)
 }
 
-// SetLogger method
-func SetLogger(level int) {
+// SetLoggerLevel method
+func SetLoggerLevel(level int) {
+	logger.DelLogger("console")
 	logger.SetLogger("console", fmt.Sprintf(`{"level": %d}`, level))
-	logger.SetLogger("file", fmt.Sprintf(`{"filename":"logs/server.log", "level":%d}`, level))
+
+	logger.DelLogger("file")
+	logger.SetLogger("file", fmt.Sprintf(`{"filename":"logs/server.log", "level":%d, "daily": true}`, level))
+
+	opLogger.DelLogger("file")
 	opLogger.SetLogger("file", fmt.Sprintf(`{"filename": "logs/op.log", "level":%d}`, level))
 }
 
@@ -86,4 +91,3 @@ func OpLog(format string, v ...interface{}) { opLogger.Debug(format, v...) }
 func PrettyPrint(v ...interface{}) {
 	Debug("%# v", pretty.Formatter(v))
 }
-
