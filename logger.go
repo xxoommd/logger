@@ -5,8 +5,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/kr/pretty"
+	"github.com/xxoommd/beego/logs"
 )
 
 var (
