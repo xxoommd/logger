@@ -54,8 +54,8 @@ func Alert(format string, v ...interface{}) { logger.Alert(format, v...) }
 // Critical method
 func Critical(format string, v ...interface{}) { logger.Critical(format, v...) }
 
-// Error method
-func Error(format string, v ...interface{}) { logger.Error(format, v...) }
+// Err method
+func Err(format string, v ...interface{}) { logger.Error(format, v...) }
 
 // Notice method
 func Notice(format string, v ...interface{}) { logger.Notice(format, v...) }
@@ -71,8 +71,7 @@ func Info(format string, v ...interface{}) { logger.Info(format, v...) }
 
 // Panic method
 func Panic(format string, v ...interface{}) {
-	Error("Panic: "+format, v...)
-	// Error(format, v...)
+	Err(format, v...)
 	errMsg := fmt.Sprintf(format, v...)
 	for i := 1; ; i++ {
 		_, file, line, ok := runtime.Caller(i)
