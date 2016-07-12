@@ -10,8 +10,7 @@ import (
 )
 
 var (
-	logger   *logs.BeeLogger
-	opLogger *logs.BeeLogger
+	logger *logs.BeeLogger
 )
 
 func init() {
@@ -22,14 +21,6 @@ func init() {
 	}
 
 	logger = logs.NewLogger(10000)
-	opLogger = logs.NewLogger(10000)
-
-	logger.EnableFuncCallDepth(true)
-	logger.SetLogFuncCallDepth(3)
-
-	opLogger.EnableFuncCallDepth(true)
-	opLogger.SetLogFuncCallDepth(3)
-
 	SetLoggerLevel(logs.LevelDebug)
 }
 
@@ -41,8 +32,12 @@ func SetLoggerLevel(level int) {
 	logger.DelLogger("file")
 	logger.SetLogger("file", fmt.Sprintf(`{"filename":"logs/server.log", "level":%d, "daily": true}`, level))
 
-	opLogger.DelLogger("file")
-	opLogger.SetLogger("file", fmt.Sprintf(`{"filename": "logs/op.log", "level":%d}`, level))
+	if level == logs.LevelDebug {
+		logger.EnableFuncCallDepth(true)
+		logger.SetLogFuncCallDepth(2)
+	} else {
+		logger.EnableFuncCallDepth(false)
+	}
 }
 
 // Emergency method
@@ -82,9 +77,6 @@ func Panic(format string, v ...interface{}) {
 	}
 	panic(errMsg)
 }
-
-// OpLog method
-func OpLog(format string, v ...interface{}) { opLogger.Debug(format, v...) }
 
 // PrettyPrint method
 func PrettyPrint(v ...interface{}) {
