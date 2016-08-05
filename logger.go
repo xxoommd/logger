@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/kr/pretty"
@@ -10,33 +11,36 @@ import (
 )
 
 var (
-	logger *logs.BeeLogger
+	logLevel int
+	logPath  string
+	logger   *logs.BeeLogger
 )
 
-func init() {
-	logDir := "./logs"
-	if err := os.Mkdir(logDir, os.ModePerm); err != nil && !os.IsExist(err) {
-		fmt.Printf("create dir %s fail : %s", logDir, err.Error())
-		return
-	}
-
+// Init method initializes logger, should be called before use.
+func Init(lv int, path string) {
 	logger = logs.NewLogger(10000)
-	SetLoggerLevel(logs.LevelDebug)
-}
+	logLevel = lv
+	logPath = path
+	checkLogPath()
 
-// SetLoggerLevel method
-func SetLoggerLevel(level int) {
 	logger.DelLogger("console")
-	logger.SetLogger("console", fmt.Sprintf(`{"level": %d}`, level))
+	logger.SetLogger("console", fmt.Sprintf(`{"level": %d}`, logLevel))
 
 	logger.DelLogger("file")
-	logger.SetLogger("file", fmt.Sprintf(`{"filename":"logs/server.log", "level":%d, "daily": true}`, level))
+	logger.SetLogger("file", fmt.Sprintf(`{"filename":"%s", "level":%d, "daily": true}`, logPath, logLevel))
 
-	if level == logs.LevelDebug {
-		logger.EnableFuncCallDepth(true)
-		logger.SetLogFuncCallDepth(2)
-	} else {
-		logger.EnableFuncCallDepth(false)
+	logger.EnableFuncCallDepth(false)
+}
+
+func checkLogPath() {
+	dir := filepath.Dir(logPath)
+
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
